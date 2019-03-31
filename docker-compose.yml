@@ -4,23 +4,8 @@ services:
     extends:
       file: docker-compose-base.yml
       service: base
-    environment:
-      - CABOT_PLUGINS_ENABLED=cabot_alert_email
-      - DEBUG=t
-      - DATABASE_URL=postgres://postgres@db:5432/postgres
-      - DJANGO_SETTINGS_MODULE=cabot.settings
-      - LOG_FILE=/dev/null
-      - PORT=5001
-      - TIME_ZONE=Europe/Berlin
-      - ADMIN_EMAIL=mathiasuhl@gmx.de
-      - CABOT_FROM_EMAIL=mathiasuhl@gmx.de
-      - CALENDAR_ICAL_URL=http://www.google.com/calendar/ical/example.ics
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - DJANGO_SECRET_KEY=2FL6ORhHwr5eX34p3424234P9mMugnIOd3jzVuT45f7w430Mt5PnEwbcJgma0q8zUXNZ68A
-      - HTTP_USER_AGENT=Cabot
-      - EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
-      - WWW_HTTP_HOST=192.168.40.141
-      - WWW_SCHEME=http
+    env_file:
+      - .conf/development.env
     command: python manage.py runserver 0.0.0.0:5001
     ports:
       - "5001:5001"
@@ -32,26 +17,12 @@ services:
     extends:
       file: docker-compose-base.yml
       service: base
+    env_file:
+      - .conf/development.env
     command: celery worker -A cabot --loglevel=DEBUG --concurrency=16 -Ofair
     environment:
       - SKIP_INIT=1
       - WAIT_FOR_MIGRATIONS=1
-      - CABOT_PLUGINS_ENABLED=cabot_alert_email
-      - DEBUG=t
-      - DATABASE_URL=postgres://postgres@db:5432/postgres
-      - DJANGO_SETTINGS_MODULE=cabot.settings
-      - LOG_FILE=/dev/null
-      - PORT=5001
-      - TIME_ZONE=Europe/Berlin
-      - ADMIN_EMAIL=mathiasuhl@gmx.de
-      - CABOT_FROM_EMAIL=mathiasuhl@gmx.de
-      - CALENDAR_ICAL_URL=http://www.google.com/calendar/ical/example.ics
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - DJANGO_SECRET_KEY=2FL6ORhHwr5eX34p3424234P9mMugnIOd3jzVuT45f7w430Mt5PnEwbcJgma0q8zUXNZ68A
-      - HTTP_USER_AGENT=Cabot
-      - EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
-      - WWW_HTTP_HOST=192.168.40.141
-      - WWW_SCHEME=http
     links:
       - redis
       - db
@@ -60,24 +31,10 @@ services:
     extends:
       file: docker-compose-base.yml
       service: base
+    env_file:
+      - .conf/development.env
     command: celery beat -A cabot --loglevel=DEBUG
     environment:
-      - CABOT_PLUGINS_ENABLED=cabot_alert_email
-      - DEBUG=t
-      - DATABASE_URL=postgres://postgres@db:5432/postgres
-      - DJANGO_SETTINGS_MODULE=cabot.settings
-      - LOG_FILE=/dev/null
-      - PORT=5001
-      - TIME_ZONE=Europe/Berlin
-      - ADMIN_EMAIL=mathiasuhl@gmx.de
-      - CABOT_FROM_EMAIL=mathiasuhl@gmx.de
-      - CALENDAR_ICAL_URL=http://www.google.com/calendar/ical/example.ics
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - DJANGO_SECRET_KEY=2FL6ORhHwr5eX34p3424234P9mMugnIOd3jzVuT45f7w430Mt5PnEwbcJgma0q8zUXNZ68A
-      - HTTP_USER_AGENT=Cabot
-      - EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
-      - WWW_HTTP_HOST=192.168.40.141
-      - WWW_SCHEME=http
       - SKIP_INIT=1
       - WAIT_FOR_MIGRATIONS=1
     links:
@@ -90,8 +47,4 @@ services:
   db:
     image: postgres:alpine
     volumes:
-      - /mnt/data/docker/cabot/postgresql:/var/lib/postgresql/data
-
-volumes:
-  datavolume:
-      - /mnt/data/docker/cabot
+      - .cabot/:/var/lib/postgresql/data
