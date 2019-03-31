@@ -47,4 +47,4 @@ services:
   db:
     image: postgres:alpine
     volumes:
-      - .cabot/:/var/lib/postgresql/data
+      - /mnt/data/docker/cabot/:/var/lib/postgresql/data
